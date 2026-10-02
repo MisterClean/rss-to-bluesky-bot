@@ -24,16 +24,73 @@ share this application's lock.
    limits, then run `systemctl daemon-reload`. Run `check-config` and `preview`
    as the worker user. Initialize a fresh bot with `init`; for existing title
    history, follow the migration procedure in the main README instead.
-4. Install `petit-rss-to-bluesky.yaml` in your existing Petit's jobs directory. Its
-   six-field cron schedules on second zero every ten minutes. The scheduler must
-   be allowed to start this specific systemd service. Preserve its existing jobs,
-   credentials, history database, global concurrency and memory limits. Reload
-   the job directory using your installed Petit's supported procedure.
+4. Stage `petit-rss-to-bluesky.yaml` outside the daemon's jobs directory, or set
+   `enabled: false` in the staged copy. Its six-field cron schedules on second
+   zero every ten minutes. Validate and list the staged directory offline:
+
+   ```sh
+   pt validate /path/to/staged-jobs
+   pt list /path/to/staged-jobs
+   ```
+
+   `enabled: false` does not block `pt trigger`; triggering executes the job and
+   must not be used for validation. Keep the job staged or disabled until the
+   migration, queue review and first manual publishing pass are complete.
    The job uses `/` as its working directory so the scheduler does not need access
    to the worker's private state directory.
-5. After reviewing baseline/queue status, run `systemctl start --wait
-   rss-to-bluesky-bot.service` for the first authorized publishing pass. Inspect
-   `journalctl -u rss-to-bluesky-bot.service` and the CLI's `status` output.
+5. Grant the scheduler permission to start the worker as described below. After
+   reviewing baseline/queue status, run `sudo -u ubuntu systemctl --no-ask-password
+   start --wait rss-to-bluesky-bot.service` for the first authorized publishing
+   pass. Replace `ubuntu` with the actual scheduler user when different. Inspect
+   `journalctl -u rss-to-bluesky-bot.service` and the CLI's `status` output before
+   activating the Petit schedule.
+
+## Allow the scheduler to start the worker
+
+For a scheduler running as `ubuntu`, install this root-owned, mode `0644` rule at
+`/etc/polkit-1/rules.d/50-rss-to-bluesky-bot.rules`. Match the actual scheduler user
+if different. The rule grants only starting this specific worker service:
+
+```js
+polkit.addRule(function(action, subject) {
+    if (action.id === "org.freedesktop.systemd1.manage-units" &&
+        subject.user === "ubuntu" &&
+        action.lookup("unit") === "rss-to-bluesky-bot.service" &&
+        action.lookup("verb") === "start") {
+        return polkit.Result.YES;
+    }
+});
+```
+
+Keep the worker unit, executable and credential file owned by root. The scheduler
+starts the unit; systemd supplies the worker's private environment and runs it as
+`rss-bot`. The manual pass above also verifies this permission without an
+interactive authentication prompt.
+
+## Activate the Petit schedule
+
+Petit **0.2.0** loads job YAML once when its daemon starts; editing files or running
+`pt validate` / `pt list` does not reload that running daemon. See the
+[pinned startup implementation](https://github.com/PedramNavid/petit/blob/170dee43be847b29bc065f4265a4b3e16d4fb7fd/src/main.rs#L445-L477).
+Installing the worker unit and running `systemctl daemon-reload` are separate from
+loading the Petit job.
+
+Inspect the existing shared Petit service and its wrapper scripts before a
+restart, including any startup catch-up or recovery hooks. Wait for active jobs
+to finish, preserve the same scheduler database, all existing job IDs, credentials,
+concurrency and memory limits, then place the enabled job in its configured jobs
+directory. Validate and list that complete directory again before restarting the
+existing daemon. For an installation whose unit is named `petit.service`:
+
+```sh
+sudo systemctl restart petit.service
+sudo journalctl -u petit.service --since '5 minutes ago' --no-pager
+```
+
+Use the actual unit name for your installation. Confirm the daemon loaded the new
+job and retained its existing jobs, then observe the next scheduled worker pass
+in both the Petit history and worker journal. Keep the job ID stable on future
+updates so scheduler history remains associated with the same job.
 
 The sample worker has a **256 MiB** hard memory cap and a **192 MiB** soft threshold.
 These are starting budgets to validate against your sources, not a guarantee for

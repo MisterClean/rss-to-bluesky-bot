@@ -43,7 +43,7 @@ jobs:
           cp README.md LICENSE bot.example.toml dist/
           cd dist
           shasum -a 256 rss-to-bluesky-bot > SHA256SUMS
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: rss-to-bluesky-bot-${{ matrix.os }}-${{ runner.arch }}
           path: dist/

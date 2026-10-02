@@ -1,0 +1,18 @@
+id: rss_bluesky_bot
+name: RSS to Bluesky Bot
+enabled: true
+schedule:
+  cron: "0 */10 * * * *"
+  timezone: UTC
+max_concurrency: 1
+tasks:
+  - id: publish
+    type: command
+    command: /usr/bin/systemctl
+    args: [start, --wait, rss-bluesky-bot.service]
+    working_dir: /var/lib/rss-bluesky-bot
+    timeout_secs: 270
+    retry:
+      max_attempts: 0
+      delay_secs: 0
+      condition: never

@@ -1,0 +1,30 @@
+[Unit]
+Description=RSS to Bluesky publishing pass
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=rss-bot
+Group=rss-bot
+WorkingDirectory=/var/lib/rss-to-bluesky-bot
+EnvironmentFile=/etc/rss-to-bluesky-bot.env
+ExecStart=/opt/rss-to-bluesky-bot/current/rss-to-bluesky-bot --config /etc/rss-to-bluesky-bot.toml run
+StateDirectory=rss-to-bluesky-bot
+StateDirectoryMode=0700
+UMask=0077
+TimeoutStartSec=240
+MemoryHigh=192M
+MemoryMax=256M
+MemorySwapMax=0
+TasksMax=16
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/rss-to-bluesky-bot

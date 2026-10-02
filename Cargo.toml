@@ -1,0 +1,49 @@
+[package]
+name = "rss-to-bluesky-bot"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.94"
+description = "A lightweight, recoverable RSS and Atom publisher for Bluesky"
+license = "MIT"
+repository = "https://github.com/MisterClean/rss-to-bluesky-bot"
+publish = false
+
+[dependencies]
+anyhow = "1"
+atrium-api = { version = "0.25.8", default-features = false, features = ["namespace-appbsky"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+clap = { version = "4", features = ["derive"] }
+dotenvy = "0.15"
+feed-rs = "3"
+fast_image_resize = { version = "6.1", default-features = false, features = ["std", "image"] }
+flate2 = "1"
+fs2 = "0.4"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp", "gif"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "gzip"] }
+quick-xml = "0.42"
+rusqlite = { version = "0.38", features = ["bundled", "backup"] }
+scraper = { version = "0.24", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+tokio = { version = "1", features = ["rt", "macros", "time", "net", "io-util", "sync"] }
+toml = "0.9"
+unicode-segmentation = "1"
+url = "2"
+
+[dev-dependencies]
+tempfile = "3"
+wiremock = "0.6"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

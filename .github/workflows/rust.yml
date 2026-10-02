@@ -1,0 +1,50 @@
+name: Rust
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.94.0
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --locked --all-targets --all-features -- -D warnings
+      - run: cargo test --locked --all-targets
+      - run: cargo build --locked --release
+      - name: Measure Linux image memory and enforce sample worker budget
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          cargo build --locked --release --example media-bench
+          mkdir -p dist
+          target/release/examples/media-bench generate /tmp/rss-square.jpg 4000 4000
+          target/release/examples/media-bench generate /tmp/rss-landscape.jpg 6000 4000
+          /usr/bin/time -v -o dist/memory-square.txt target/release/examples/media-bench process /tmp/rss-square.jpg
+          /usr/bin/time -v -o dist/memory-landscape.txt target/release/examples/media-bench process /tmp/rss-landscape.jpg
+          docker run --rm --memory=256m --memory-swap=256m -v "$PWD:/work:ro" -v /tmp/rss-square.jpg:/fixture.jpg:ro ubuntu:24.04 /work/target/release/examples/media-bench process /fixture.jpg
+          docker run --rm --memory=256m --memory-swap=256m -v "$PWD:/work:ro" -v /tmp/rss-landscape.jpg:/fixture.jpg:ro ubuntu:24.04 /work/target/release/examples/media-bench process /fixture.jpg
+      - name: Package native executable
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp target/release/rss-to-bluesky-bot dist/
+          cp README.md LICENSE bot.example.toml dist/
+          cd dist
+          shasum -a 256 rss-to-bluesky-bot > SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rss-to-bluesky-bot-${{ matrix.os }}-${{ runner.arch }}
+          path: dist/
+          if-no-files-found: error

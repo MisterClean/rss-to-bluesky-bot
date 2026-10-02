@@ -1,0 +1,44 @@
+# Copy to bot.toml. Paths resolve relative to the copied configuration file.
+profile = "my-rss-bot"
+
+[state]
+database = "state/history.sqlite3"
+session = "state/session.json"
+media_dir = "state/media"
+
+[bluesky]
+service = "https://bsky.social"
+identifier_env = "BLUESKY_USERNAME"
+password_env = "BLUESKY_PASSWORD"
+# Optional account pin; the first successful login otherwise pins the DID in SQLite.
+# expected_did = "did:plc:your-account-did"
+
+[posting]
+template = "{title}\n\nRead more: {link}"
+max_posts_per_run = 10
+pacing_seconds = 5
+
+[media]
+enabled = true
+required = false
+max_images = 4
+max_dimension = 4000
+max_upload_bytes = 2000000
+max_download_bytes = 16777216
+max_source_pixels = 24000000
+discover_from_article = true
+
+[http]
+timeout_seconds = 30
+max_feed_bytes = 4194304
+max_article_bytes = 2097152
+
+[[feeds]]
+id = "example"
+url = "https://example.org/feed.xml"
+# Optional inclusive UTC date. Undated items are excluded when this is set.
+# min_date = "2026-01-01"
+# Filters match title and summary, case-insensitively. Any include match qualifies;
+# any exclude match rejects. Empty lists disable the respective filter.
+include_keywords = []
+exclude_keywords = []

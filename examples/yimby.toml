@@ -1,0 +1,34 @@
+# Public account/feed parameters only; credentials stay outside Git.
+# For migration, point database at the existing production posts.db COPY first.
+profile = "chicago-yimby"
+
+[state]
+database = "state/posts.db"
+session = "state/session.json"
+media_dir = "state/media"
+
+[bluesky]
+service = "https://bsky.social"
+expected_did = "did:plc:hqknobue6d6c7g25jo6qmug4"
+identifier_env = "BLUESKY_USERNAME"
+password_env = "BLUESKY_PASSWORD"
+
+[posting]
+template = "{title}\n\nRead more: {link}"
+max_posts_per_run = 5
+pacing_seconds = 5
+
+[media]
+enabled = true
+required = false
+max_images = 1
+max_dimension = 4000
+max_upload_bytes = 2000000
+max_download_bytes = 16777216
+max_source_pixels = 24000000
+discover_from_article = true
+
+[[feeds]]
+id = "chicago-yimby"
+url = "https://chicagoyimby.com/feed"
+min_date = "2025-12-11"

@@ -91,9 +91,9 @@ Public structs/types and trait signatures are in `model.rs`. Errors are in `erro
 - [x] Durable SQLite history, baseline/backfill/migration and recoverable publishing.
 - [x] Current ATProto client, private sessions and quality-first bounded media.
 - [x] CLI and examples, public README, portable scheduling and Petit integration examples.
-- [x] Local behavioral/CLI/protocol/media tests, formatting, Clippy, release build and native memory measurements; Linux CI verification pending.
+- [x] Behavioral/CLI/protocol/media tests, formatting, Clippy, release build and native Linux memory measurements.
 - [x] Public-data read-only preview and disposable legacy migration tests; no live social writes.
-- [ ] Secret/artifact review, commit, push, PR and attach it to this chat.
+- [x] Secret/artifact review, commit, push, [PR #4](https://github.com/MisterClean/ChicagoYIMBYblueskybot/pull/4) and attach it to this chat.
 
 Update this section with exact commands, measured results and remaining limitations as work completes. No production deployment is part of this implementation turn.
 
@@ -106,6 +106,7 @@ Update this section with exact commands, measured results and remaining limitati
 - Read-only public YIMBY preview rendered current source titles, intact links and a valid article image. It did not create posting state or load social credentials.
 - The final public preview selected the original 1049×788 article image rather than the RSS thumbnail, producing a 609,308-byte JPEG without upscaling. Article metadata and responsive candidates are considered even with a one-image cap.
 - A **synthetic** 1,329-row disposable legacy fixture modeled ID gaps, mixed opaque date formats and max ID 1,332. CLI migration and its consistent backup preserved every row exactly, passed SQLite integrity checks and created no authentication state.
-- Initial native 4000-square noisy-image conversion peaked at 475,414,528 bytes; integer resizing reduced the corresponding sample to 204,111,872 bytes. These macOS measurements include the slice-based benchmark's extra source copy and allocator behavior, and are not Linux hosting guarantees. CI measures native Linux and exercises the 256 MiB sample cgroup separately.
-- The native macOS release executable measured 10,155,120 bytes; offline configuration validation peaked at 8,388,608 bytes. Final release measurements may differ after subsequent fixes.
+- Initial native 4000-square noisy-image conversion peaked at 475,414,528 bytes; integer resizing reduced the corresponding macOS sample to 204,111,872 bytes. Native Linux peaked at **135,864 KiB (132.7 MiB)** for that fixture and **167,544 KiB (163.6 MiB)** for a 6000×4000 fixture, completing in 2.23s and 1.99s respectively. Both also passed inside independent 256 MiB/no-swap cgroups.
+- Native Ubuntu 24.04 and macOS CI passed all 115 tests, formatting, strict Clippy and release builds on implementation commit `7603576`: [verified run](https://github.com/MisterClean/ChicagoYIMBYblueskybot/actions/runs/37027547119). The Ubuntu X64 executable measured **12,443,736 bytes**; its compressed workflow artifact was about 5 MiB. Offline native macOS configuration validation peaked at 8 MiB.
+- Run `cargo build --locked --release --example media-bench`, then generate fixtures in a separate process (`media-bench generate PATH WIDTH HEIGHT`) and measure `media-bench process PATH` with `/usr/bin/time -v` on Linux. The benchmark uses the same processing function and conservatively includes an extra source copy; live publishing consumes downloaded bytes directly. The generated fixtures stress compression and therefore require dimension reduction to meet the upload limit. Results are measured examples, not an allocator-level maximum for every codec/source.
 - Fresh production-copy verification remains a cutover prerequisite: follow-up SSH attempts timed out or stalled during this implementation session. No remote file, process, database, credentials or schedule was changed. Synthetic legacy fixtures validate compatibility, but do not replace inspection of the actual database at cutover.

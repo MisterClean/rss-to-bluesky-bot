@@ -151,6 +151,12 @@ still need a meaningful transient memory allowance. Reduce the source pixel or
 output dimension limits when needed, and measure with your feeds. A small idle
 footprint does not predict the peak during image conversion.
 
+Native Ubuntu 24.04 verification measured **133 MiB** peak RSS for a noisy
+4,000×4,000 JPEG conversion and **164 MiB** for a 6,000×4,000 source. Both completed
+under a 256 MiB cgroup cap. These are stress fixtures, not universal codec memory
+guarantees. The standalone Linux executable is about **12.4 MB**. See
+[REFACTOR.md](REFACTOR.md) for reproducible measurements and validation details.
+
 Feed and article bodies default to 4 MiB and 2 MiB respectively. Both encoded and
 decoded gzip bodies are bounded, and the configured HTTP deadline covers transport
 and source decompression.

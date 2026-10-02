@@ -3,7 +3,7 @@
 
 use anyhow::{Context, Result, bail};
 use image::{Rgb, RgbImage, codecs::jpeg::JpegEncoder};
-use rss_bluesky_bot::{config::MediaConfig, media};
+use rss_to_bluesky_bot::{config::MediaConfig, media};
 use std::{env, fs, path::Path};
 
 fn main() -> Result<()> {

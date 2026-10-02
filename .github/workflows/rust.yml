@@ -39,12 +39,12 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          cp target/release/rss-bluesky-bot dist/
+          cp target/release/rss-to-bluesky-bot dist/
           cp README.md LICENSE bot.example.toml dist/
           cd dist
-          shasum -a 256 rss-bluesky-bot > SHA256SUMS
+          shasum -a 256 rss-to-bluesky-bot > SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
-          name: rss-bluesky-bot-${{ matrix.os }}-${{ runner.arch }}
+          name: rss-to-bluesky-bot-${{ matrix.os }}-${{ runner.arch }}
           path: dist/
           if-no-files-found: error

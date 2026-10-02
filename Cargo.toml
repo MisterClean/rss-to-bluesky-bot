@@ -1,11 +1,11 @@
 [package]
-name = "rss-bluesky-bot"
+name = "rss-to-bluesky-bot"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.94"
 description = "A lightweight, recoverable RSS and Atom publisher for Bluesky"
 license = "MIT"
-repository = "https://github.com/MisterClean/ChicagoYIMBYblueskybot"
+repository = "https://github.com/MisterClean/rss-to-bluesky-bot"
 publish = false
 
 [dependencies]

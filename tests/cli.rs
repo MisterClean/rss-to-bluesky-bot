@@ -33,7 +33,7 @@ fn config(directory: &Path, url: &str) -> TestResult<std::path::PathBuf> {
 }
 
 async fn cli(config: &Path, args: &[&str]) -> TestResult<Output> {
-    let mut command = Command::new(env!("CARGO_BIN_EXE_rss-bluesky-bot"));
+    let mut command = Command::new(env!("CARGO_BIN_EXE_rss-to-bluesky-bot"));
     command
         .arg("--config")
         .arg(config)

@@ -1,5 +1,5 @@
-id: rss_bluesky_bot
-name: RSS to Bluesky Bot
+id: rss_to_bluesky_bot
+name: rss-to-bluesky-bot
 enabled: true
 schedule:
   cron: "0 */10 * * * *"
@@ -9,8 +9,8 @@ tasks:
   - id: publish
     type: command
     command: /usr/bin/systemctl
-    args: [start, --wait, rss-bluesky-bot.service]
-    working_dir: /var/lib/rss-bluesky-bot
+    args: [start, --wait, rss-to-bluesky-bot.service]
+    working_dir: /
     timeout_secs: 270
     retry:
       max_attempts: 0

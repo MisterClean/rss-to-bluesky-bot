@@ -1,4 +1,4 @@
-# RSS to Bluesky Bot
+# rss-to-bluesky-bot
 
 A native Rust application that posts new articles from RSS or Atom feeds to a
 Bluesky account. Configure your feeds and account, initialize the history, and
@@ -45,11 +45,11 @@ handle and a [Bluesky app password](https://bsky.app/settings/app-passwords).
 Secrets belong in the environment or a private dotenv file, never in TOML or Git.
 
 ```sh
-target/release/rss-bluesky-bot --config bot.toml check-config
-target/release/rss-bluesky-bot --config bot.toml preview --limit 3
-target/release/rss-bluesky-bot --config bot.toml init
-target/release/rss-bluesky-bot --config bot.toml status
-target/release/rss-bluesky-bot --config bot.toml --env-file .env run
+target/release/rss-to-bluesky-bot --config bot.toml check-config
+target/release/rss-to-bluesky-bot --config bot.toml preview --limit 3
+target/release/rss-to-bluesky-bot --config bot.toml init
+target/release/rss-to-bluesky-bot --config bot.toml status
+target/release/rss-to-bluesky-bot --config bot.toml --env-file .env run
 ```
 
 **`init` remembers the feed's current entries without posting them.** Subsequent

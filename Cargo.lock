@@ -1963,7 +1963,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rss-bluesky-bot"
+name = "rss-to-bluesky-bot"
 version = "0.1.0"
 dependencies = [
  "anyhow",

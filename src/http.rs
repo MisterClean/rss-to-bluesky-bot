@@ -31,7 +31,7 @@ pub fn client(settings: &HttpConfig) -> Result<Client> {
                 attempt.follow()
             }
         }))
-        .user_agent(concat!("rss-bluesky-bot/", env!("CARGO_PKG_VERSION")))
+        .user_agent(concat!("rss-to-bluesky-bot/", env!("CARGO_PKG_VERSION")))
         .build()
         .map_err(transport_error)
 }

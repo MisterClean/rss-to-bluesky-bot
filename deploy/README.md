@@ -13,25 +13,27 @@ share this application's lock.
 ## Install a profile
 
 1. Create an unprivileged `rss-bot` system account and a private
-   `/var/lib/rss-bluesky-bot` directory owned by it. Put the native executable in
-   a versioned `/opt/rss-bluesky-bot/releases/<version>/` directory and point
-   `/opt/rss-bluesky-bot/current` at that release. Keep code read-only for the worker.
-2. Copy your TOML configuration to `/etc/rss-bluesky-bot.toml`. Set all three state
-   paths to absolute paths beneath `/var/lib/rss-bluesky-bot`. Store app credentials
-   in `/etc/rss-bluesky-bot.env`, mode `0600`, owned by root; systemd reads it before
+   `/var/lib/rss-to-bluesky-bot` directory owned by it. Put the native executable in
+   a versioned `/opt/rss-to-bluesky-bot/releases/<version>/` directory and point
+   `/opt/rss-to-bluesky-bot/current` at that release. Keep code read-only for the worker.
+2. Copy your TOML configuration to `/etc/rss-to-bluesky-bot.toml`. Set all three state
+   paths to absolute paths beneath `/var/lib/rss-to-bluesky-bot`. Store app credentials
+   in `/etc/rss-to-bluesky-bot.env`, mode `0600`, owned by root; systemd reads it before
    dropping privileges. `BLUESKY_USERNAME` and `BLUESKY_PASSWORD` are the defaults.
-3. Install `rss-bluesky-bot.service` in `/etc/systemd/system/`, adjust its paths and
+3. Install `rss-to-bluesky-bot.service` in `/etc/systemd/system/`, adjust its paths and
    limits, then run `systemctl daemon-reload`. Run `check-config` and `preview`
    as the worker user. Initialize a fresh bot with `init`; for existing title
    history, follow the migration procedure in the main README instead.
-4. Install `petit-rss-bluesky.yaml` in your existing Petit's jobs directory. Its
+4. Install `petit-rss-to-bluesky.yaml` in your existing Petit's jobs directory. Its
    six-field cron schedules on second zero every ten minutes. The scheduler must
    be allowed to start this specific systemd service. Preserve its existing jobs,
    credentials, history database, global concurrency and memory limits. Reload
    the job directory using your installed Petit's supported procedure.
+   The job uses `/` as its working directory so the scheduler does not need access
+   to the worker's private state directory.
 5. After reviewing baseline/queue status, run `systemctl start --wait
-   rss-bluesky-bot.service` for the first authorized publishing pass. Inspect
-   `journalctl -u rss-bluesky-bot.service` and the CLI's `status` output.
+   rss-to-bluesky-bot.service` for the first authorized publishing pass. Inspect
+   `journalctl -u rss-to-bluesky-bot.service` and the CLI's `status` output.
 
 The sample worker has a **256 MiB** hard memory cap and a **192 MiB** soft threshold.
 These are starting budgets to validate against your sources, not a guarantee for

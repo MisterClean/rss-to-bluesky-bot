@@ -4,7 +4,7 @@ use anyhow::{Context, Result, bail};
 use chrono::{DateTime, NaiveDate, Utc};
 use clap::{Parser, Subcommand};
 use fs2::FileExt;
-use rss_bluesky_bot::{
+use rss_to_bluesky_bot::{
     bluesky::{Bluesky, Credentials},
     config::Config,
     feed, http, media,
@@ -179,7 +179,7 @@ async fn main() -> Result<()> {
                         Ok(true) => None,
                         Err(e) => Some(Err(e)),
                     })
-                    .collect::<rss_bluesky_bot::Result<Vec<_>>>()?;
+                    .collect::<rss_to_bluesky_bot::Result<Vec<_>>>()?;
                 let snapshots = snapshots(&config, &client, Some(&ids), allow_empty).await?;
                 print_json(&store.baseline(&snapshots)?)?;
             } else {
@@ -324,9 +324,9 @@ async fn main() -> Result<()> {
 }
 
 fn snapshot(
-    source: &rss_bluesky_bot::config::FeedConfig,
-    articles: Vec<rss_bluesky_bot::model::Article>,
-    validators: rss_bluesky_bot::model::FeedValidators,
+    source: &rss_to_bluesky_bot::config::FeedConfig,
+    articles: Vec<rss_to_bluesky_bot::model::Article>,
+    validators: rss_to_bluesky_bot::model::FeedValidators,
 ) -> FeedSnapshot {
     let eligible_ids = articles
         .iter()

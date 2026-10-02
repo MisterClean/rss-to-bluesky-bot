@@ -1,11 +1,12 @@
 # Rust RSS-to-Bluesky refactor
 
-This is the durable implementation contract for the refactor. Update the completion and verification notes as work progresses. The public application is `rss-bluesky-bot`; Chicago YIMBY is its first example configuration.
+This is the durable implementation contract for the refactor. Update the completion and verification notes as work progresses. The public application is `rss-to-bluesky-bot`; Chicago YIMBY is its first example configuration.
 
 ## Scope and authorization
 
-- Implement on `codex/rust-rss-bluesky-refactor`, commit and push to the existing public repository, and prepare a reviewable PR.
-- Do not deploy, change production, authenticate with production credentials, publish live test posts, or alter the Bluesky account.
+- Implement on `codex/rust-rss-bluesky-refactor`, commit and push to the public repository, and prepare a reviewable PR.
+- The user now authorizes renaming the repository and project to `rss-to-bluesky-bot`, merging PR #4, migrating the existing production history and deploying the Rust worker. Verify a consistent production database copy and stop all previous publishers before enabling the replacement schedule.
+- Preserve the Chicago YIMBY profile/feed IDs and account DID through the rename and cutover. Keep the established Bluesky account identity; live test posts and account changes remain outside this authorization.
 - Keep credentials, sessions, databases, production snapshots, SSH information, and machine-specific audit details out of Git. The existing tracked 13-row database is not production input and must be untracked, without deleting the local file.
 - User explicitly permits replacing legacy behavior. Preserve historical suppression and reliable new-article delivery; replace Python loops, fuzzy title checks, and the old image quality limits.
 
@@ -93,11 +94,20 @@ Public structs/types and trait signatures are in `model.rs`. Errors are in `erro
 - [x] CLI and examples, public README, portable scheduling and Petit integration examples.
 - [x] Behavioral/CLI/protocol/media tests, formatting, Clippy, release build and native Linux memory measurements.
 - [x] Public-data read-only preview and disposable legacy migration tests; no live social writes.
-- [x] Secret/artifact review, commit, push, [PR #4](https://github.com/MisterClean/ChicagoYIMBYblueskybot/pull/4) and attach it to this chat.
+- [x] Secret/artifact review, commit, push, [PR #4](https://github.com/MisterClean/rss-to-bluesky-bot/pull/4) and attach it to this chat.
+- [x] Rename package, executable, repository references and deployment examples to `rss-to-bluesky-bot`, preserving configured publication identity.
+- [ ] Merge PR #4 after verification of the renamed project.
+- [ ] Verify a production history copy, migrate during the authorized cutover, deploy and observe the dedicated Rust worker.
 
-Update this section with exact commands, measured results and remaining limitations as work completes. No production deployment is part of this implementation turn.
+Update this section with exact commands, measured results and remaining limitations as work completes. Production migration and deployment are now in scope; the checkpoint below records the earlier implementation-only verification.
 
-### Verification checkpoint
+### Project rename verification
+
+- `cargo check --all-targets --all-features` regenerated Cargo.lock with the renamed package. `cargo fmt --all -- --check`, `cargo clippy --locked --all-targets --all-features -- -D warnings`, `cargo test --locked --all-targets` and `git diff --check` passed; all **115 tests** remained green.
+- Package/crate names, CLI examples, the HTTP user-agent, CI artifact names and deployment paths now use `rss-to-bluesky-bot` / `rss_to_bluesky_bot`. The Petit sample dispatches the renamed service from `/`; the worker retains its private state directory.
+- Chicago YIMBY's configured profile/feed IDs and pinned DID are unchanged. This rename did not change application behavior or the state schema.
+
+### Historical implementation verification checkpoint
 
 - CLI integration tests use local feed servers and disposable databases. They cover missing state, process overlap, silent baseline, read-only status, preview without credentials, explicit backfill, added feeds and consistent legacy backups.
 - Local verification: `cargo test --locked --all-targets` passed **115 tests** (105 library, 2 CLI helper, 8 CLI integration); `cargo fmt --all -- --check`, strict all-target Clippy and the release build passed.
@@ -107,6 +117,6 @@ Update this section with exact commands, measured results and remaining limitati
 - The final public preview selected the original 1049×788 article image rather than the RSS thumbnail, producing a 609,308-byte JPEG without upscaling. Article metadata and responsive candidates are considered even with a one-image cap.
 - A **synthetic** 1,329-row disposable legacy fixture modeled ID gaps, mixed opaque date formats and max ID 1,332. CLI migration and its consistent backup preserved every row exactly, passed SQLite integrity checks and created no authentication state.
 - Initial native 4000-square noisy-image conversion peaked at 475,414,528 bytes; integer resizing reduced the corresponding macOS sample to 204,111,872 bytes. Native Linux peaked at **135,864 KiB (132.7 MiB)** for that fixture and **167,544 KiB (163.6 MiB)** for a 6000×4000 fixture, completing in 2.23s and 1.99s respectively. Both also passed inside independent 256 MiB/no-swap cgroups.
-- Native Ubuntu 24.04 and macOS CI passed all 115 tests, formatting, strict Clippy and release builds on implementation commit `7603576`: [verified run](https://github.com/MisterClean/ChicagoYIMBYblueskybot/actions/runs/37027547119). The Ubuntu X64 executable measured **12,443,736 bytes**; its compressed workflow artifact was about 5 MiB. Offline native macOS configuration validation peaked at 8 MiB.
+- Native Ubuntu 24.04 and macOS CI passed all 115 tests, formatting, strict Clippy and release builds on implementation commit `7603576`: [verified run](https://github.com/MisterClean/rss-to-bluesky-bot/actions/runs/37027547119). The Ubuntu X64 executable measured **12,443,736 bytes**; its compressed workflow artifact was about 5 MiB. Offline native macOS configuration validation peaked at 8 MiB.
 - Run `cargo build --locked --release --example media-bench`, then generate fixtures in a separate process (`media-bench generate PATH WIDTH HEIGHT`) and measure `media-bench process PATH` with `/usr/bin/time -v` on Linux. The benchmark uses the same processing function and conservatively includes an extra source copy; live publishing consumes downloaded bytes directly. The generated fixtures stress compression and therefore require dimension reduction to meet the upload limit. Results are measured examples, not an allocator-level maximum for every codec/source.
 - Fresh production-copy verification remains a cutover prerequisite: follow-up SSH attempts timed out or stalled during this implementation session. No remote file, process, database, credentials or schedule was changed. Synthetic legacy fixtures validate compatibility, but do not replace inspection of the actual database at cutover.
